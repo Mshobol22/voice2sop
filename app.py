@@ -23,6 +23,7 @@ def create_pdf(text):
     
     # Content
     pdf.set_font("Arial", size=12)
+    # Handle basic encoding for PDF
     pdf.multi_cell(0, 10, txt=text.encode('latin-1', 'replace').decode('latin-1'))
     
     return pdf.output(dest='S').encode('latin-1')
@@ -63,8 +64,6 @@ def apply_pro_style():
         /* CARD styling (SaaS Box Shadow) */
         div.stContainer {
             background-color: transparent; 
-            /* The border and shadow happen on the internal blocks in Streamlit 
-               but we can accent standard elements */
         }
         
         /* Metric Cards */
@@ -106,17 +105,18 @@ with st.sidebar:
         st.success("✅ Connected to Enterprise AI")
         api_key = st.secrets["GEMINI_API_KEY"]
     else:
+        # Fallback for local testing or if secret is missing
         api_key = st.text_input("🔑 Enter API Key", type="password")
         if not api_key:
             st.warning("Please enter key to start.")
 
     st.divider()
     
-    # UPSELL CARD
+    # UPSELL CARD (LINKED TO YOUR STRIPE)
     with st.container(border=True):
         st.markdown("#### 🚀 **Unlock Teams**")
         st.markdown("- Unlimited History\n- Custom Branding\n- Slack Integration")
-        st.button("Upgrade Plan")
+        st.link_button("Upgrade Plan - $19/mo", "https://buy.stripe.com/00w6oGdlF5bN4Pl8gj9Zm00")
 
 # --- MAIN DASHBOARD ---
 
@@ -247,6 +247,7 @@ if audio_value and api_key:
                     mime="application/pdf",
                     help="Professional PDF Export"
                 )
+                st.caption("[Unlock Custom Branding](https://buy.stripe.com/00w6oGdlF5bN4Pl8gj9Zm00)")
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
