@@ -23,107 +23,160 @@ def create_pdf(text):
     
     # Content
     pdf.set_font("Arial", size=12)
-    # Handle basic encoding for PDF
     pdf.multi_cell(0, 10, txt=text.encode('latin-1', 'replace').decode('latin-1'))
     
     return pdf.output(dest='S').encode('latin-1')
 
-# --- UI STYLING (ADAPTIVE) ---
-def apply_saas_style():
+# --- UI STYLING (PRO DASHBOARD LOOK) ---
+def apply_pro_style():
     st.markdown("""
         <style>
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
-        
-        /* Custom Font - Applied to everything */
+        /* Base fonts */
         html, body, [class*="css"] {
             font-family: 'Inter', sans-serif;
         }
+        
+        /* Hide default streamlit chrome */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
 
-        /* Centered Title - Color automatically adjusts */
-        h1 {
-            font-weight: 700;
-            font-size: 2.5rem;
+        /* MAIN TITLE styling */
+        .main-title {
+            font-size: 3rem;
+            font-weight: 800;
             text-align: center;
-            margin-bottom: 10px;
+            background: -webkit-linear-gradient(45deg, #2563eb, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0px;
         }
         
-        /* Subtitle Styling */
+        /* SUBTITLE styling */
         .subtitle {
             text-align: center;
-            font-size: 1.1rem;
-            opacity: 0.7; /* Makes it slightly gray in both modes */
+            font-size: 1.2rem;
+            opacity: 0.8;
             margin-bottom: 30px;
         }
+
+        /* CARD styling (SaaS Box Shadow) */
+        div.stContainer {
+            background-color: transparent; 
+            /* The border and shadow happen on the internal blocks in Streamlit 
+               but we can accent standard elements */
+        }
         
-        /* Bigger, bolder buttons */
+        /* Metric Cards */
+        div[data-testid="stMetric"] {
+            background-color: rgba(150, 150, 150, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        /* Button Styling - Gradient Action */
         div.stButton > button {
             width: 100%;
             border-radius: 8px;
             font-weight: 600;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
+            border: none;
+            padding: 0.6rem;
+            transition: all 0.3s ease;
+        }
+        
+        div.stButton > button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         </style>
     """, unsafe_allow_html=True)
 
-apply_saas_style()
+apply_pro_style()
 
 # --- SIDEBAR ---
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/9373/9373977.png", width=50)
-    st.markdown("### **Voice2SOP** `v2.0`")
-    st.caption("Turn rambles into rigid documentation.")
+    st.image("https://cdn-icons-png.flaticon.com/512/9373/9373977.png", width=60)
+    st.markdown("### **Voice2SOP** `Pro`")
+    st.caption("AI-Powered Process Documentation")
     st.divider()
-    api_key = st.text_input("🔑 Enter Gemini API Key", type="password")
+
+    # SECRET MANAGEMENT
+    if "GEMINI_API_KEY" in st.secrets:
+        st.success("✅ Connected to Enterprise AI")
+        api_key = st.secrets["GEMINI_API_KEY"]
+    else:
+        api_key = st.text_input("🔑 Enter API Key", type="password")
+        if not api_key:
+            st.warning("Please enter key to start.")
+
     st.divider()
-    st.markdown("### 🚀 **Upgrade to PRO**")
-    st.info("Unlock PDF Exports, Team Sharing, and Unlimited History.")
-    st.button("Get PRO - $19/mo")
+    
+    # UPSELL CARD
+    with st.container(border=True):
+        st.markdown("#### 🚀 **Unlock Teams**")
+        st.markdown("- Unlimited History\n- Custom Branding\n- Slack Integration")
+        st.button("Upgrade Plan")
 
-# --- MAIN APP LAYOUT ---
-st.markdown("<h1>Voice2SOP</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>Speak your process. We'll write the manual.</p>", unsafe_allow_html=True)
+# --- MAIN DASHBOARD ---
 
+# 1. HEADER SECTION
+st.markdown('<h1 class="main-title">Voice2SOP</h1>', unsafe_allow_html=True)
+st.markdown('<p class="subtitle">Turn your voice notes into professional documentation.</p>', unsafe_allow_html=True)
+
+# 2. DASHBOARD METRICS (Visual "Fluff" to make it look active)
+col_m1, col_m2, col_m3 = st.columns(3)
+col_m1.metric("Time Saved", "2.5 hrs", "+15%")
+col_m2.metric("SOPs Generated", "12", "+2")
+col_m3.metric("Words Processed", "4.2k", "High")
+
+st.divider()
+
+# 3. WORKFLOW CONTAINER
 with st.container(border=True):
-    st.markdown("### 1. Set Context")
+    st.markdown("### 🛠️ New Documentation Project")
+    
+    # A visual "Stepper"
+    st.markdown("`1️⃣ Setup Context` &nbsp; → &nbsp; `2️⃣ Record Audio` &nbsp; → &nbsp; `3️⃣ Generate Docs`")
+    st.write("") # Spacer
+
     col1, col2 = st.columns(2)
     with col1:
         sop_type = st.selectbox(
-            "What type of doc is this?",
-            ["Standard Operating Procedure (SOP)", "Safety Protocol", "Employee Onboarding", "Technical Tutorial"]
+            "Document Type",
+            ["Standard Operating Procedure (SOP)", "Safety Protocol", "Employee Onboarding", "Technical Tutorial"],
+            index=0
         )
     with col2:
         tone = st.selectbox(
-            "Tone of voice?",
-            ["Professional & Direct", "Friendly & Encouraging", "Strict & Compliance-Focused"]
+            "Tone of Voice",
+            ["Professional & Direct", "Friendly & Encouraging", "Strict & Compliance-Focused"],
+            index=0
         )
 
-    st.markdown("### 2. Record Process")
-    # Using st.audio_input
-    audio_value = st.audio_input("Record your voice note")
+    st.write("") # Spacer
+    st.markdown("##### 🎙️ Record Process")
+    st.caption("Explain the task naturally. We will structure it for you.")
+    
+    # AUDIO INPUT
+    audio_value = st.audio_input("Tap to record")
 
-# --- LOGIC ---
+# --- PROCESSING LOGIC ---
 if audio_value and api_key:
     st.divider()
     
-    with st.spinner("🎧 Transcribing audio and formatting document..."):
+    with st.spinner("🤖 AI is analyzing your voice... formatting structure..."):
         try:
             genai.configure(api_key=api_key)
             
-            # 1. SETUP MODEL
+            # MODEL SETUP
             model = genai.GenerativeModel("gemini-2.5-flash") 
             
-            # 2. PREPARE AUDIO DATA
+            # PREPARE DATA
             audio_bytes = audio_value.read()
+            audio_part = {"mime_type": audio_value.type, "data": audio_bytes}
             
-            # Package it correctly for Gemini
-            audio_part = {
-                "mime_type": audio_value.type, 
-                "data": audio_bytes
-            }
-            
+            # PROMPT
             prompt = f"""
             You are an expert technical writer. 
             I will provide an audio transcript. 
@@ -142,11 +195,11 @@ if audio_value and api_key:
             A short, professional email to the team announcing this new process.
             """
             
-            # 3. GENERATE CONTENT
+            # GENERATE
             response = model.generate_content([prompt, audio_part])
             full_text = response.text
             
-            # 4. PARSE OUTPUT
+            # PARSE
             try:
                 parts = full_text.split("[SECTION")
                 checklist_content = parts[1].replace(" 1: CHECKLIST]", "").strip()
@@ -157,30 +210,29 @@ if audio_value and api_key:
                 doc_content = full_text
                 email_content = "Could not generate email draft."
 
-            st.success("✨ Documentation Generated!")
+            st.success("✨ Documentation Ready!")
 
-            # 5. DISPLAY TABS
-            tab1, tab2, tab3 = st.tabs(["📋 Action Checklist", "📄 Official SOP", "✉️ Team Email"])
+            # TABS INTERFACE
+            tab1, tab2, tab3 = st.tabs(["✅ Checklist", "📄 Full SOP", "✉️ Email Draft"])
             
             with tab1:
-                st.markdown("#### Quick Steps")
                 st.markdown(checklist_content)
                 
             with tab2:
-                st.markdown("#### Full Documentation")
-                st.markdown(doc_content)
+                with st.container(border=True):
+                    st.markdown(doc_content)
                 
             with tab3:
+                st.info("Copy this draft to send to your team.")
                 st.code(email_content, language="text")
-                st.caption("Copy and paste this into Outlook/Slack.")
 
-            # 6. EXPORT BUTTONS
-            st.divider()
+            # EXPORT SECTION
+            st.markdown("### 📥 Export")
             col_ex1, col_ex2 = st.columns(2)
             
             with col_ex1:
                 st.download_button(
-                    label="Download as .TXT (Free)",
+                    label="📄 Download .TXT",
                     data=doc_content,
                     file_name="sop_draft.txt",
                     mime="text/plain"
@@ -189,15 +241,17 @@ if audio_value and api_key:
             with col_ex2:
                 pdf_data = create_pdf(doc_content)
                 st.download_button(
-                    label="Download PDF (Pro)",
+                    label="📕 Download PDF (Pro)",
                     data=pdf_data,
                     file_name="SOP_Document.pdf",
                     mime="application/pdf",
-                    help="Export your SOP as a professional PDF"
+                    help="Professional PDF Export"
                 )
 
         except Exception as e:
             st.error(f"An error occurred: {e}")
 
-elif audio_value and not api_key:
-    st.warning("⚠️ Please enter your API Key in the sidebar to process the audio.")
+# --- EMPTY STATE / HELP (When nothing is recorded yet) ---
+elif not audio_value:
+    st.divider()
+    st.info("💡 **Pro Tip:** For best results, mention the 'Why' (Goal) and the 'Who' (Responsible Person) at the start of your recording.")
